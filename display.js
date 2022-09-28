@@ -3,27 +3,27 @@ console.log("Display Running...");
 
 function roll(q) {
     return Math.atan2(2 * (
-        q[0] * q[1] + 
+        q[0] * q[1] +
         q[2] * q[3]
         ), 1 - 2 * (
-        q[1] * q[1] + 
+        q[1] * q[1] +
         q[2] * q[2]
     )) * 57.3;
 }
 
 function pitch(q) {
     return Math.asin(2 * (
-        q[0] * q[2] - 
+        q[0] * q[2] -
         q[3] * q[1]
     )) * 57.3;
 }
 
 function yaw(q) {
     return Math.atan2(2 * (
-        q[0] * q[3] + 
+        q[0] * q[3] +
         q[1] * q[2]
         ), 1 - 2 * (
-        q[2] * q[2] + 
+        q[2] * q[2] +
         q[3] * q[3]
         )) * 57.3;
 }
@@ -106,30 +106,35 @@ function displayULogBinary(binary) {
 
         graph([
             {
-                x: _.map(d.data.sensor_baro_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.sensor_baro_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.sensor_baro_0, (x) => {return x.altitude}),
                 name: "Barometer Altitude"
             },
             {
-                x: _.map(d.data.vehicle_gps_position_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.vehicle_gps_position_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.vehicle_gps_position_0, (x) => {return x.alt / 1000}),
                 name: "GPS Altitude"
+            },
+            {
+                x: _.map(d.data.distance_sensor_0, (x) => {return x.timestamp/60e6}),
+                y: _.map(d.data.distance_sensor_0, (x) => {return x.current_distance/100}),
+                name: "Distance Sensor"
             }
         ], "Altitude");
 
         graph([
             {
-                x: _.map(d.data.sensor_accel_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.sensor_accel_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.sensor_accel_0, (x) => {return x.x}),
                 name: "x"
             },
             {
-                x: _.map(d.data.sensor_accel_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.sensor_accel_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.sensor_accel_0, (x) => {return x.y}),
                 name: "y"
             },
             {
-                x: _.map(d.data.sensor_accel_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.sensor_accel_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.sensor_accel_0, (x) => {return x.z}),
                 name: "z"
             }
@@ -138,105 +143,120 @@ function displayULogBinary(binary) {
         let magSensorData = _.filter(d.data.sensor_mag_0, (x) => {return x.device_id % 1000 == 600});
         graph([
             {
-                x: _.map(magSensorData, (x) => {return x.timestamp}),
+                x: _.map(magSensorData, (x) => {return x.timestamp/60e6}),
                 y: _.map(magSensorData, (x) => {return x.x}),
                 name: "x"
             },
             {
-                x: _.map(magSensorData, (x) => {return x.timestamp}),
+                x: _.map(magSensorData, (x) => {return x.timestamp/60e6}),
                 y: _.map(magSensorData, (x) => {return x.y}),
                 name: "y"
             },
             {
-                x: _.map(magSensorData, (x) => {return x.timestamp}),
+                x: _.map(magSensorData, (x) => {return x.timestamp/60e6}),
                 y: _.map(magSensorData, (x) => {return x.z}),
                 name: "z"
             }
         ], "Mag Sensor");
         graph([
             {
-                x: _.map(d.data.sensor_gyro_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.sensor_gyro_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.sensor_gyro_0, (x) => {return x.x}),
                 name: "x"
             },
             {
-                x: _.map(d.data.sensor_gyro_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.sensor_gyro_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.sensor_gyro_0, (x) => {return x.y}),
                 name: "y"
             },
             {
-                x: _.map(d.data.sensor_gyro_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.sensor_gyro_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.sensor_gyro_0, (x) => {return x.z}),
                 name: "z"
             }
         ], "Gyroscope");
-        
+
         graph([
             {
-                x: _.map(d.data.vehicle_attitude_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.vehicle_attitude_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.vehicle_attitude_0, (x) => {return roll(x.q)}),
-                name: "x"
+                name: "roll"
+            },
+            {
+                x: _.map(d.data.vehicle_attitude_setpoint_0, (x) => {return x.timestamp/60e6}),
+                y: _.map(d.data.vehicle_attitude_setpoint_0, (x) => {return roll(x.q_d)}),
+                name: "roll ref"
             }
-        ], "Roll Angle");
+        ], "Roll Angle (deg)");
 
         graph([
             {
-                x: _.map(d.data.vehicle_attitude_0, (x) => {return x.timestamp}),
-                y: _.map(d.data.vehicle_attitude_0, (x) => {return x.rollspeed}),
+                x: _.map(d.data.vehicle_angular_velocity_0, (x) => {return x.timestamp/60e6}),
+                y: _.map(d.data.vehicle_angular_velocity_0, (x) => {return x.xyz[0]*57.3}),
                 name: "x"
             }
-        ], "Roll Angular Rate");
+        ], "Roll Angular Rate (deg/s)");
 
         graph([
             {
-                x: _.map(d.data.vehicle_attitude_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.vehicle_attitude_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.vehicle_attitude_0, (x) => {return pitch(x.q)}),
-                name: "x"
+                name: "pitch"
+            },
+            {
+                x: _.map(d.data.vehicle_attitude_setpoint_0, (x) => {return x.timestamp/60e6}),
+                y: _.map(d.data.vehicle_attitude_setpoint_0, (x) => {return pitch(x.q_d)}),
+                name: "pitch ref"
             }
-        ], "Pitch Angle");
+        ], "Pitch Angle (deg)");
 
         graph([
             {
-                x: _.map(d.data.vehicle_attitude_0, (x) => {return x.timestamp}),
-                y: _.map(d.data.vehicle_attitude_0, (x) => {return x.pitchspeed}),
+                x: _.map(d.data.vehicle_angular_velocity_0, (x) => {return x.timestamp/60e6}),
+                y: _.map(d.data.vehicle_angular_velocity_0, (x) => {return x.xyz[1]*57.3}),
                 name: "x"
             }
-        ], "Pitch Angular Rate");
+        ], "Pitch Angular Rate (deg/s)");
 
         graph([
             {
-                x: _.map(d.data.vehicle_attitude_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.vehicle_attitude_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.vehicle_attitude_0, (x) => {return yaw(x.q)}),
-                name: "x"
+                name: "yaw"
+            },
+            {
+                x: _.map(d.data.vehicle_attitude_setpoint_0, (x) => {return x.timestamp/60e6}),
+                y: _.map(d.data.vehicle_attitude_setpoint_0, (x) => {return yaw(x.q_d)}),
+                name: "yaw ref"
             }
-        ], "Yaw Angle");
+        ], "Yaw Angle (deg)");
 
         graph([
             {
-                x: _.map(d.data.vehicle_attitude_0, (x) => {return x.timestamp}),
-                y: _.map(d.data.vehicle_attitude_0, (x) => {return x.yawspeed}),
+                x: _.map(d.data.vehicle_angular_velocity_0, (x) => {return x.timestamp/60e6}),
+                y: _.map(d.data.vehicle_angular_velocity_0, (x) => {return x.xyz[2]*57.3}),
                 name: "x"
             }
-        ], "Yaw Angular Rate");
+        ], "Yaw Angular Rate (deg/s)");
 
         graph([
             {
-                x: _.map(d.data.vehicle_gps_position_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.vehicle_gps_position_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.vehicle_gps_position_0, (x) => {return x.satellites_used}),
                 name: "Num Satellites Used"
             },
             {
-                x: _.map(d.data.vehicle_gps_position_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.vehicle_gps_position_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.vehicle_gps_position_0, (x) => {return x.fix_type}),
                 name: "GPS Fix"
             },
             {
-                x: _.map(d.data.vehicle_gps_position_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.vehicle_gps_position_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.vehicle_gps_position_0, (x) => {return x.hdop}),
                 name: "Horizontal Position Accuracy [m]"
             },
             {
-                x: _.map(d.data.vehicle_gps_position_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.vehicle_gps_position_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.vehicle_gps_position_0, (x) => {return x.vdop}),
                 name: "Vertical Position Accuracy [m]"
             }
@@ -244,12 +264,12 @@ function displayULogBinary(binary) {
 
         graph([
             {
-                x: _.map(d.data.vehicle_gps_position_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.vehicle_gps_position_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.vehicle_gps_position_0, (x) => {return x.noise_per_ms}),
                 name: "Noise per ms"
             },
             {
-                x: _.map(d.data.vehicle_gps_position_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.vehicle_gps_position_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.vehicle_gps_position_0, (x) => {return x.jamming_indicator}),
                 name: "Jamming"
             }
@@ -257,7 +277,7 @@ function displayULogBinary(binary) {
 
         graph([
             {
-                x: _.map(d.data.estimator_status_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.estimator_status_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.estimator_status_0, (x) => {return x.nan_flags}),
                 name: "Noise per ms"
             },
@@ -265,7 +285,7 @@ function displayULogBinary(binary) {
 
         graph([
             {
-                x: _.map(d.data.vehicle_status_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.vehicle_status_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.vehicle_status_0, (x) => {return x.rc_signal_lost ? 1 : 0}),
                 name: "RC Lost (Detected)"
             },
@@ -273,12 +293,12 @@ function displayULogBinary(binary) {
 
         graph([
             {
-                x: _.map(d.data.sensor_combined_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.sensor_combined_0, (x) => {return x.timestamp/60e6}),
                 y: deltaT(d.data.sensor_combined_0),
                 name: "delta t (between 2 logged samples)"
             },
             {
-                x: _.map(d.data.estimator_status_0, (x) => {return x.timestamp}),
+                x: _.map(d.data.estimator_status_0, (x) => {return x.timestamp/60e6}),
                 y: _.map(d.data.estimator_status_0, (x) => {return x.time_slip}),
                 name: "Estimator Time Slip"
             }
@@ -294,7 +314,7 @@ function handleFileSelect(evt) {
         let reader = new FileReader();
 
         reader.onload = (e) => {displayULogBinary(e.target.result)};
-            
+
         reader.readAsArrayBuffer(files[i]);
     }
 }
